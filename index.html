@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free pelis/series - Tu Cine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para el carrusel y las tarjetas */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .carousel-slide.active {
+            opacity: 1;
+            z-index: 1;
+        }
+        .carousel-slide img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .carousel-nav {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 2;
+        }
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .carousel-dot.active {
+            background-color: white;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .card-img-top {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        .card-body {
+            padding: 16px;
+        }
+        .card-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .card-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .btn-primary {
+            background-color: #e53e3e;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+        .btn-primary:hover {
+            background-color: #c53030;
+        }
+        .movie-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .movie-filter button {
+            background-color: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+        }
+        .movie-filter button:hover {
+            background-color: #ddd;
+        }
+        .movie-filter button.active {
+            background-color: #e53e3e;
+            color: white;
+        }
+        # próximos-estrenos h2,
+        # funciones h2 {
+            color: #e53e3e;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <header class="bg-white shadow-md py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <a href="#" class="text-xl font-bold text-red-600">Cine Hoyts</a>
+            <nav class="hidden md:block">
+                <ul class="flex space-x-6">
+                    <li><a href="#cartelera" class="text-gray-700 hover:text-red-600 transition duration-300">Cartelera</a></li>
+                    <li><a href="#proximos-estrenos" class="text-gray-700 hover:text-red-600 transition duration-300">Próximos Estrenos</a></li>
+                    <li><a href="#funciones" class="text-gray-700 hover:text-red-600 transition duration-300">Funciones</a></li>
+                    <li><a href="#" class="text-gray-700 hover:text-red-600 transition duration-300">Promociones</a></li>
+                    <li><a href="#" class="text-gray-700 hover:text-red-600 transition duration-300">Candy</a></li>
+                </ul>
+            </nav>
+            <div class="md:hidden">
+                <button id="menu-button" class="text-gray-700 focus:outline-none focus:shadow-outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+                <div id="menu-desplegable" class="hidden absolute top-16 right-0 bg-white shadow-lg rounded-md py-2 px-4 space-y-2">
+                    <a href="#cartelera" class="block text-gray-700 hover:text-red-600 transition duration-300">Cartelera</a>
+                    <a href="#proximos-estrenos" class="block text-gray-700 hover:text-red-600 transition duration-300">Próximos Estrenos</a>
+                    <a href="#funciones" class="block text-gray-700 hover:text-red-600 transition duration-300">Funciones</a>
+                    <a href="#" class="block text-gray-700 hover:text-red-600 transition duration-300">Promociones</a>
+                    <a href="#" class="block text-gray-700 hover:text-red-600 transition duration-300">Candy</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main>
+        <section class="carousel-container mt-8">
+            <div class="carousel-slide active">
+                <img src="https://via.placeholder.com/1200x400?text=Banner+1" alt="Banner 1">
+            </div>
+            <div class="carousel-slide">
+                <img src="https://via.placeholder.com/1200x400?text=Banner+2" alt="Banner 2">
+            </div>
+            <div class="carousel-slide">
+                <img src="https://via.placeholder.com/1200x400?text=Banner+3" alt="Banner 3">
+            </div>
+            <div class="carousel-nav">
+                <div class="carousel-dot active"></div>
+                <div class="carousel-dot"></div>
+                <div class="carousel-dot"></div>
+            </div>
+        </section>
+        <section id="cartelera" class="container mx-auto px-4 py-8">
+            <h2 class="text-3xl font-bold mb-6 text-center text-red-600">Cartelera</h2>
+            <div class="movie-filter">
+                <button data-filter="all" class="active">Todas</button>
+                <button data-filter="acción">Acción</button>
+                <button data-filter="comedia">Comedia</button>
+                <button data-filter="drama">Drama</button>
+                <button data-filter="terror">Terror</button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div class="card" data-category="acción">
+                    <img src="https://via.placeholder.com/300x450?text=Película+1" class="card-img-top" alt="Película 1">
+                    <div class="card-body">
+                        <h3 class="card-title">Película de Acción 1</h3>
+                        <p class="card-text">Descripción de la película.</p>
+                        <a href="#" class="btn-primary">Comprar Entradas</a>
+                    </div>
+                </div>
+                <div class="card" data-category="comedia">
+                    <img src="https://via.placeholder.com/300x450?text=Película+2" class="card-img-top" alt="Película 2">
+                    <div class="card-body">
+                        <h3 class="card-title">Película de Comedia 2</h3>
+                        <p class="card-text">Descripción de la película.</p>
+                        <a href="#" class="btn-primary">Comprar Entradas</a>
+                    </div>
+                </div>
+                <div class="card" data-category="drama">
+                    <img src="https://via.placeholder.com/300x450?text=Película+3" class="card-img-top" alt="Película 3">
+                    <div class="card-body">
+                        <h3 class="card-title">Película de Drama 3</h3>
+                        <p class="card-text">Descripción de la película.</p>
+                        <a href="#" class="btn-primary">Comprar Entradas</a>
+                    </div>
+                </div>
+                <div class="card" data-category="terror">
+                    <img src="https://via.placeholder.com/300x450?text=Película+4" class="card-img-top" alt="Película 4">
+                    <div class="card-body">
+                        <h3 class="card-title">Película de Terror 4</h3>
+                        <p class="card-text">Descripción de la película.</p>
+                        <a href="#" class="btn-primary">Comprar Entradas</a>
+                    </div>
+                </div>
+                <div class="card" data-category="acción">
+                    <img src="https://via.placeholder.com/300x450?text=Película+5" class="card-img-top" alt="Película 5">
+                    <div class="card-body">
+                        <h3 class="card-title">Película de Acción 5</h3>
+                        <p class="card-text">Descripción de la película.</p>
+                        <a href="#" class="btn-primary">Comprar Entradas</a>
+                    </div>
+                </div>
+                <div class="card" data-category="comedia">
+                    <img src="https://via.placeholder.com/300x450?text=Película+6" class="card-img-top" alt="Película 6">
+                    <div class="card-body">
+                        <h3 class="card-title">Película de Comedia 6</h3>
+                        <p class="card-text">Descripción de la película.</p>
+                        <a href="#" class="btn-primary">Comprar Entradas</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="proximos-estrenos" class="container mx-auto px-4 py-8">
+            <h2 class="text-3xl font-bold mb-6 text-center text-red-600">Próximos Estrenos</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div class="card">
+                    <img src="https://via.placeholder.com/300x450?text=Estreno+1" class="card-img-top" alt="Estreno 1">
+                    <div class="card-body">
+                        <h3 class="card-title">Próximo Estreno 1</h3>
+                        <p class="card-text">Fecha de estreno: 01/01/2025</p>
+                        <a href="#" class="btn-primary">Ver Trailer</a>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://via.placeholder.com/300x450?text=Estreno+2" class="card-img-top" alt="Estreno 2">
+                    <div class="card-body">
+                        <h3 class="card-title">Próximo Estreno 2</h3>
+                        <p class="card-text">Fecha de estreno: 15/01/2025</p>
+                        <a href="#" class="btn-primary">Ver Trailer</a>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://via.placeholder.com/300x450?text=Estreno+3" class="card-img-top" alt="Estreno 3">
+                    <div class="card-body">
+                        <h3 class="card-title">Próximo Estreno 3</h3>
+                        <p class="card-text">Fecha de estreno: 01/02/2025</p>
+                        <a href="#" class="btn-primary">Ver Trailer</a>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://via.placeholder.com/300x450?text=Estreno+4" class="card-img-top" alt="Estreno 4">
+                    <div class="card-body">
+                        <h3 class="card-title">Próximo Estreno 4</h3>
+                        <p class="card-text">Fecha de estreno: 15/02/2025</p>
+                        <a href="#" class="btn-primary">Ver Trailer</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="funciones" class="container mx-auto px-4 py-8">
+            <h2 class="text-3xl font-bold mb-6 text-center text-red-600">Horarios y Funciones</h2>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="mb-4">
+                    <label for="pelicula-select" class="block text-gray-700 text-sm font-bold mb-2">Seleccione una película:</label>
+                    <select id="pelicula-select" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="">Todas las películas</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="fecha-select" class="block text-gray-700 text-sm font-bold mb-2">Seleccione una fecha:</label>
+                    <input type="date" id="fecha-select" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div id="funciones-listado" class="mt-6">
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 Cine Hoyts. Todos los derechos reservados.</p>
+            <p>Diseñado por [Tu Nombre o Empresa]</p>
+        </div>
+    </footer>
+    <script>
+        // Carrusel de Banners
+        const slides = document.querySelectorAll('.carousel-slide');
+        const dots = document.querySelectorAll('.carousel-dot');
+        let currentSlide = 0;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                dots.forEach(dot => dot.classList.remove('active'));
+            });
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+            currentSlide = index;
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        setInterval(nextSlide, 5000);
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                showSlide(index);
+                clearInterval(intervalId);
+                intervalId = setInterval(nextSlide, 5000);
+            });
+        });
+
+        // Filtro de Películas
+        const movieFilterButtons = document.querySelectorAll('.movie-filter button');
+        const movieCards = document.querySelectorAll('.card');
+
+        movieFilterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const filter = button.dataset.filter;
+                movieFilterButtons.forEach(b => b.classList.remove('active'));
+                button.classList.add('active');
+                movieCards.forEach(card => {
+                    const category = card.dataset.category;
+                    if (filter === 'all' || filter === category) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Menú desplegable en móvil
+        const menuButton = document.getElementById('menu-button');
+        const menuDesplegable = document.getElementById('menu-desplegable');
+        if (menuButton && menuDesplegable) {
+            menuButton.addEventListener('click', () => {
+                menuDesplegable.classList.toggle('hidden');
+            });
+        }
+
+        // Funciones y Horarios
+        const funcionesData = [
+            { pelicula: 'Película de Acción 1', fecha: '2024-07-28', hora: '18:00', sala: 'Sala 1' },
+            { pelicula: 'Película de Acción 1', fecha: '2024-07-28', hora: '20:30', sala: 'Sala 1' },
+            { pelicula: 'Película de Comedia 2', fecha: '2024-07-28', hora: '19:00', sala: 'Sala 2' },
+            { pelicula: 'Película de Comedia 2', fecha: '2024-07-28', hora: '21:30', sala: 'Sala 2' },
+            { pelicula: 'Película de Drama 3', fecha: '2024-07-29', hora: '17:00', sala: 'Sala 3' },
+            { pelicula: 'Película de Drama 3', fecha: '2024-07-29', hora: '19:30', sala: 'Sala 3' },
+            { pelicula: 'Película de Terror 4', fecha: '2024-07-29', hora: '22:00', sala: 'Sala 4' },
+            { pelicula: 'Película de Acción 1', fecha: '2024-07-29', hora: '18:00', sala: 'Sala 1' },
+            { pelicula: 'Película de Comedia 2', fecha: '2024-07-30', hora: '20:00', sala: 'Sala 2' },
+            { pelicula: 'Película de Drama 3', fecha: '2024-07-30', hora: '21:00', sala: 'Sala 3' },
+        ];
+
+        // Llenar el select de películas
+        const peliculaSelect = document.getElementById('pelicula-select');
+        const uniquePeliculas = [...new Set(funcionesData.map(f => f.pelicula))];
+        uniquePeliculas.forEach(pelicula => {
+            const option = document.createElement('option');
+            option.value = pelicula;
+            option.textContent = pelicula;
+            peliculaSelect.appendChild(option);
+        });
+
+        // Función para mostrar las funciones
+        function mostrarFunciones() {
+            const selectedPelicula = peliculaSelect.value;
+            const selectedFecha = document.getElementById('fecha-select').value;
+            const funcionesListado = document.getElementById('funciones-listado');
+            funcionesListado.innerHTML = '';
+            const filteredFunciones = funcionesData.filter(funcion => {
+                return (selectedPelicula === '' || funcion.pelicula === selectedPelicula) &&
+                    (selectedFecha === '' || funcion.fecha === selectedFecha);
+            });
+            if (filteredFunciones.length === 0) {
+                funcionesListado.innerHTML = '<p class="text-gray-500">No hay funciones disponibles para la selección.</p>';
+                return;
+            }
+            filteredFunciones.forEach(funcion => {
+                const funcionItem = document.createElement('div');
+                funcionItem.classList.add('bg-white', 'rounded-md', 'shadow-sm', 'p-4', 'mb-4');
+                funcionItem.innerHTML = `
+                    <h4 class="text-lg font-semibold text-red-600">${funcion.pelicula}</h4>
+                    <p class="text-gray-700">Fecha: ${funcion.fecha}</p>
+                    <p class="text-gray-700">Hora: ${funcion.hora}</p>
+                    <p class="text-gray-700">Sala: ${funcion.sala}</p>
+                    <a href="#" class="btn-primary">Comprar Entradas</a>
+                `;
+                funcionesListado.appendChild(funcionItem);
+            });
+        }
+
+        // Event listeners para los filtros de funciones
+        peliculaSelect.addEventListener('change', mostrarFunciones);
+        document.getElementById('fecha-select').addEventListener('change', mostrarFunciones);
+        mostrarFunciones();
+    </script>
+</body>
+</html>
