@@ -59,7 +59,7 @@
             border-radius: 0.5rem;
             box-shadow: 0 8px 16px rgba(0,0,0,0.2);
             width: 90%; /* Ancho máximo del 90% */
-            max-width: 700px; /* Ancho máximo de 800px */
+            max-width: 800px; /* Ancho máximo de 800px */
             position: relative; /* Para posicionar el botón de cierre absolutamente */
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
